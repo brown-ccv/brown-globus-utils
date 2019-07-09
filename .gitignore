@@ -3,6 +3,7 @@
 
 # VScode
 .DS_Store
+.vscode/*
 
 # Tests
 *deleteme*
