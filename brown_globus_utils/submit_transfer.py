@@ -9,7 +9,14 @@ Example:
 """
 
 import os
-import globus_utils
+import sys
+import argparse
+import logging
+import time
+import brown_globus_utils.utils as globus_utils
+from brown_globus_utils import __version__
+
+_logger = logging.getLogger(__name__)
 
 def parse_args(args):
     """Parse command line parameters
@@ -25,7 +32,7 @@ def parse_args(args):
     parser.add_argument(
         '--version',
         action='version',
-        version='bnctools {ver}'.format(ver=__version__))
+        version='brown_globus_utils {ver}'.format(ver=__version__))
     parser.add_argument(
         dest="source_name",
         help="Source Endpoint",
@@ -43,16 +50,8 @@ def parse_args(args):
         help="Location of target diirectory or file",
         type=str)
     parser.add_argument(
-        dest="startfile",
-        help="First file",
-        type=str)
-    parser.add_argument(
-        dest="nfiles",
-        help="Parent output directory",
-        type=int)
-    parser.add_argument(
         '--isfile',
-        dest="is file",
+        dest="isfile",
         help="flag to indicate that transfer is for a single file",
         action='store_true')
     parser.add_argument(
@@ -92,8 +91,12 @@ def main(args):
     args = parse_args(args)
     setup_logging(args.loglevel)
     tc = globus_utils.get_tc()
-    globus_utils.print_enpoints()
-    # transfer(tc, args.source_name, args.target,args.input_dir, args.output_dir, args.start_file, args.n_files)
+    # globus_utils.print_endpoints(tc)
+    transfer_id = globus_utils.transfer_sync(tc, args.source_name, args.target_name,args.source_loc, args.target_loc, args.isfile)
+    
+    _logger.info("--------------------------------------------")
+    _logger.info("task_id =" + transfer_id)
+    _logger.info("--------------------------------------------")
 
 
 def run():

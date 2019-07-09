@@ -1,7 +1,8 @@
+import os
 import globus_sdk
 from dotenv import load_dotenv
 
-def get_tc()
+def get_tc():
     """Get Globus transfer client
 
     This function loads GLOBUS_CLIENT_ID from .env file
@@ -38,13 +39,13 @@ def get_tc()
     return tc
 
 
-def print_end_points(tc)
+def print_endpoints(tc):
     print("Endpoints administered by me:")
     for ep in tc.endpoint_search(filter_scope="administered-by-me"):
         print("[{}] {}".format(ep["id"], ep["display_name"]))
 
 
-def transfer_sync(tc, source_endpoint, target_enpoint, source_dir, target_dir, label):
+def transfer_sync(tc, source_endpoint, target_enpoint, source_loc, target_loc, isfile):
     """Transfer a directory, recursively, from source to targe.
     The source and target endpoints are specified by name
 
@@ -60,21 +61,22 @@ def transfer_sync(tc, source_endpoint, target_enpoint, source_dir, target_dir, l
     sids = tc.endpoint_search(source_endpoint, filter_scope="administered-by-me")
     tids = tc.endpoint_search(target_enpoint, filter_scope="administered-by-me")
 
-    assert(len(sids) == 1 && len(tids) ==1)
-
+#     assert(len(sids) == 1 & len(tids) ==1)
+    print(type(sids))
     source_endpoint_id = sids[0]["id"]
     target_endpoint_id = tids[0]["id"]
 
 
     tdata = globus_sdk.TransferData(tc, source_endpoint_id,
-                                    destination_endpoint_id,
-                                    label=label,
-                                    sync_level="checksum")
+                                        target_endpoint_id,
+                                        label="brown-globus-utils",
+                                        sync_level="checksum")
 
-    tdata.add_item(source_loc, target_loc, , recursive=True)
+    if isfile:
+            tdata.add_item(source_loc, target_loc)
+    else:
+            tdata.add_item(source_loc, target_loc, recursive=True)
 
     transfer_result = tc.submit_transfer(tdata)
-
-    print("task_id =", transfer_result["task_id"])
 
     return transfer_result["task_id"]
